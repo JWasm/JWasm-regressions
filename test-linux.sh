@@ -15,7 +15,7 @@ blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.AS
 
 echo "Testing JWasm BIN output"
 
-for file in *.{ASM,asm}; do
+for file in `ls *.{ASM,asm}`; do
 
 	if [[ $blacklist =~ $file ]]; then
 		echo -e " - [${YY}BR${NC}] broken $file"
