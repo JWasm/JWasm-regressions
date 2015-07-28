@@ -19,7 +19,8 @@ echo ">>"
 
 for file in `ls *.[aA][sS][mM]`; do
 
-	if [[ $blacklist =~ $file ]]; then
+	blacklisted=`echo $blacklist | grep -w $file`
+	if [ ! -z "$blacklisted" ]; then
 		echo -e " - [${YY}BR${NC}] broken $file"
 		nr_broken=$((nr_broken+1))
 		continue;
@@ -46,7 +47,8 @@ blacklist=""
 
 for file in `ls *.[aA][sS][nN]`; do
 
-	if [[ $blacklist =~ $file ]]; then
+	blacklisted=`echo $blacklist | grep -w $file`
+	if [ ! -z "$blacklisted" ]; then
 		echo -e " - [${YY}BR${NC}] broken $file"
 		nr_broken=$((nr_broken+1))
 		continue;
