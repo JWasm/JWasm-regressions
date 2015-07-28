@@ -72,4 +72,4 @@ echo "=="
 echo -e "SUMMARY: FAILED ${RR}${nr_failed}${NC} / PASSED ${GG}${nr_passed}${NC} / BROKEN ${YY}${nr_broken}${NC}"
 echo "=="
 
-exit $failed
+exit $nr_failed
