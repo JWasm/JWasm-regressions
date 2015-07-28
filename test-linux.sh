@@ -13,9 +13,11 @@ nr_broken=0
 
 blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.ASM sse2_2.asm"
 
-echo "Testing JWasm BIN output"
+echo ">>"
+echo ">> Testing JWasm BIN output"
+echo ">>"
 
-for file in `ls *.{ASM,asm}`; do
+for file in `ls *.[aA][sS][mM]`; do
 
 	if [[ $blacklist =~ $file ]]; then
 		echo -e " - [${YY}BR${NC}] broken $file"
@@ -23,7 +25,7 @@ for file in `ls *.{ASM,asm}`; do
 		continue;
 	fi
 
-	jwasm -bin $file &>/dev/null
+	jwasm -q -bin $file &>/dev/null
 
 	`cmp ${file%%.*}.BIN ${file%%.*}.EXP`
 
@@ -34,6 +36,34 @@ for file in `ls *.{ASM,asm}`; do
 		echo -e " - [${GG}OK${NC}] passed $file"
 		nr_passed=$((nr_passed+1))
 	fi
+done
+
+echo ">>"
+echo ">> Testing JWasm EXE output"
+echo ">>"
+
+blacklist=""
+
+for file in `ls *.[aA][sS][nN]`; do
+
+	if [[ $blacklist =~ $file ]]; then
+		echo -e " - [${YY}BR${NC}] broken $file"
+		nr_broken=$((nr_broken+1))
+		continue;
+	fi
+
+	jwasm -q -mz $file &>/dev/null
+
+	`cmp ${file%%.*}.EXE ${file%%.*}.EXP`
+
+	if [ $? -ne 0 ]; then
+		echo -e " - [${RR}ER${NC}] failed $file"
+		nr_failed=$((nr_failed+1))
+	else
+		echo -e " - [${GG}OK${NC}] passed $file"
+		nr_passed=$((nr_passed+1))
+	fi
+
 done
 
 echo "=="
