@@ -17,11 +17,13 @@ echo ">>"
 echo ">> Testing JWasm BIN output"
 echo ">>"
 
+jwas
+
 for file in `ls *.[aA][sS][mM]`; do
 
 	blacklisted=`echo $blacklist | grep -w $file`
 	if [ ! -z "$blacklisted" ]; then
-		echo -e " - [${YY}BR${NC}] broken $file"
+		printf " - [${YY}BR${NC}] broken $file\n"
 		nr_broken=$((nr_broken+1))
 		continue;
 	fi
@@ -31,10 +33,10 @@ for file in `ls *.[aA][sS][mM]`; do
 	`cmp ${file%%.*}.BIN ${file%%.*}.EXP`
 
 	if [ $? -ne 0 ]; then
-		echo -e " - [${RR}ER${NC}] failed $file"
+		printf " - [${RR}ER${NC}] failed $file\n"
 		nr_failed=$((nr_failed+1))
 	else
-		echo -e " - [${GG}OK${NC}] passed $file"
+		printf " - [${GG}OK${NC}] passed $file\n"
 		nr_passed=$((nr_passed+1))
 	fi
 done
@@ -49,7 +51,7 @@ for file in `ls *.[aA][sS][nN]`; do
 
 	blacklisted=`echo $blacklist | grep -w $file`
 	if [ ! -z "$blacklisted" ]; then
-		echo -e " - [${YY}BR${NC}] broken $file"
+		printf " - [${YY}BR${NC}] broken $file\n"
 		nr_broken=$((nr_broken+1))
 		continue;
 	fi
@@ -59,17 +61,17 @@ for file in `ls *.[aA][sS][nN]`; do
 	`cmp ${file%%.*}.EXE ${file%%.*}.EXP`
 
 	if [ $? -ne 0 ]; then
-		echo -e " - [${RR}ER${NC}] failed $file"
+		printf " - [${RR}ER${NC}] failed $file\n"
 		nr_failed=$((nr_failed+1))
 	else
-		echo -e " - [${GG}OK${NC}] passed $file"
+		printf " - [${GG}OK${NC}] passed $file\n"
 		nr_passed=$((nr_passed+1))
 	fi
 
 done
 
 echo "=="
-echo -e "SUMMARY: FAILED ${RR}${nr_failed}${NC} / PASSED ${GG}${nr_passed}${NC} / BROKEN ${YY}${nr_broken}${NC}"
+printf "SUMMARY: FAILED ${RR}${nr_failed}${NC} / PASSED ${GG}${nr_passed}${NC} / BROKEN ${YY}${nr_broken}${NC}\n"
 echo "=="
 
 exit $nr_failed
