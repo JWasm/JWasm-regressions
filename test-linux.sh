@@ -17,7 +17,7 @@ echo ">>"
 echo ">> Testing JWasm BIN output"
 echo ">>"
 
-jwas
+jwasm | head -n3
 
 for file in `ls *.[aA][sS][mM]`; do
 
