@@ -12,6 +12,11 @@ re_feature = re.compile('feature-requests')
 bugsFile = open("sf-bugs.txt", "w")
 featuresFile = open("sf-features.txt", "w")
 
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)
+    raise TypeError
+        
 class SfSpider(scrapy.Spider):
     name = "sf"
     allowed_domains = ["sourceforge.net"]
@@ -20,24 +25,9 @@ class SfSpider(scrapy.Spider):
         'http://www.sourceforge.net/p/jwasm/feature-requests/?limit=1024',
     )
 
-    s = requests.Session()
-    s.auth = ('USER', 'PASS')
-
-    def create_github_issue(self, issue):
-         url = 'https://api.github.com/repos/jwasm/jwasm/issues'
-
-         def set_default(obj):
-             if isinstance(obj, set):
-                 return list(obj)
-             raise TypeError
-        
-         r = self.s.post(url, json.dumps(issue, default = set_default))
-         if r.status_code == 201:
-             print 'Successfully created Issue "%s"' % issue["title"]
-    
     def extract(self, values, index = 0):
         try:
-            return values.extract()[index]
+            return re.sub("\s\s+", " ", values.extract()[index]).strip()
         except:
             return ''
 
@@ -54,10 +44,13 @@ class SfSpider(scrapy.Spider):
                 issue["milestone"] = self.extract(tr.xpath('td[3]/text()'))
                 issue["status"] = self.extract(tr.xpath('td[4]/text()'))
                 issue["owner"] = self.extract(tr.xpath('td[5]/text()'))
-                issue["created"] = self.extract(tr.xpath('td[6]//span/@title'))
-                issue["updated"] = self.extract(tr.xpath('td[7]//span/@title'))
+                issue["created"] = self.extract(tr.xpath('td[6]//span/text()'))
+                issue["updated"] = self.extract(tr.xpath('td[7]//span/text()'))
                 issue["priority"] = self.extract(tr.xpath('td[8]//text()'))
 
+                if (issue["owner"] is None) or (str(issue["owner"]).strip()==""):
+                    issue["owner"] = "nobody";
+                
                 if re_bug.search(self.extract(tr.xpath('td[1]//a/@href'))):
                     bugs.append(issue)
                     continue
@@ -82,49 +75,40 @@ class SfSpider(scrapy.Spider):
             yield request
 
     def parseBugCallback(self, response):
-        response.meta["item"]["content"] = self.extract(response.xpath('//*[@id="ticket_content"]/div/p'))
+        response.meta["item"]["content"] = self.extract(response.xpath('//*[@id="ticket_content"]/div'))
         item = response.meta["item"];
         issue = {}
         issue["title"] = "[SF-BUG-%s] %s" % (item["id"], item["summary"])
-        issue["labels"] = { "sourceforge", "bug" }
-        issue["body"] = """---
-
-sourceforge / bug / {id} [{link}]({summary}) created on {created} by {author}
+        issue["labels"] = { "sf-import", "bug" }
+        issue["body"] = '''**SF-BUG-{id}** | [{summary}]({link}) *created on* `{created}` *by* `{author}`
 
 ---
 
-{content}
-
-""".format( id = item["id"]
-            , link = "http://www.sourceforge.net/p/jwasm/bugs/%s" % (item["id"])
+{content}'''.format(id = item["id"]
             , summary = item["summary"]
+            , link = "http://www.sourceforge.net/p/jwasm/bugs/%s" % (item["id"])
             , created = item["created"]
             , author = item["owner"]
             , content = item["content"] )
-
-        self.create_github_issue(issue)
-        pass
+        json.dump(issue, bugsFile, default = set_default)
+        print >>bugsFile
 
     def parseFeatureCallback(self, response):
-        response.meta["item"]["content"] = self.extract(response.xpath('//*[@id="ticket_content"]/div/p'))
+        response.meta["item"]["content"] = self.extract(response.xpath('//*[@id="ticket_content"]/div'))
         item = response.meta["item"];
         issue = {}
         issue["title"] = "[SF-FEATURE-%s] %s" % (item["id"], item["summary"])
-        issue["labels"] = { "sourceforge", "feature" }
-        issue["body"] = """---
-
-sourceforge / feature / {id} [{link}]({summary}) created on {created} by {author}
+        issue["labels"] = { "sf-import", "feature" }
+        issue["body"] = '''**SF-FEATURE-{id}** | [{summary}]({link}) *created on* `{created}` *by* `{author}`
 
 ---
 
-{content}
-
-""".format( id = item["id"]
-            , link = "http://www.sourceforge.net/p/jwasm/feature-requests/%s" % (item["id"])
+{content}'''.format(id = item["id"]
             , summary = item["summary"]
+            , link = "http://www.sourceforge.net/p/jwasm/feature-requests/%s" % (item["id"])
             , created = item["created"]
             , author = item["owner"]
             , content = item["content"] )
+        json.dump(issue, featuresFile, default = set_default)
+        print >>featuresFile
 
-        self.create_github_issue(issue)
-        pass
