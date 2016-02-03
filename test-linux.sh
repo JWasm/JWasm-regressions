@@ -30,7 +30,7 @@ for file in `ls *.[aA][sS][mM]`; do
 
 	jwasm -q -bin $file &>/dev/null
 
-	`cmp ${file%%.*}.BIN ${file%%.*}.EXP`
+	`cmp -b ${file%%.*}.BIN ${file%%.*}.EXP`
 
 	if [ $? -ne 0 ]; then
 		printf " - [${RR}ER${NC}] failed $file\n"
@@ -58,7 +58,7 @@ for file in `ls *.[aA][sS][nN]`; do
 
 	jwasm -q -mz $file &>/dev/null
 
-	`cmp ${file%%.*}.EXE ${file%%.*}.EXP`
+	`cmp -b ${file%%.*}.EXE ${file%%.*}.EXP`
 
 	if [ $? -ne 0 ]; then
 		printf " - [${RR}ER${NC}] failed $file\n"
