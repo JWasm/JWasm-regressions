@@ -9,6 +9,8 @@ nr_passed=0
 nr_failed=0
 nr_broken=0
 
+jwasm | head -n3
+
 # TODO: resolve all the problems
 
 blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.ASM sse2_2.asm"
@@ -16,8 +18,6 @@ blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.AS
 echo ">>"
 echo ">> Testing JWasm BIN output"
 echo ">>"
-
-jwasm | head -n3
 
 for file in `ls *.[aA][sS][mM]`; do
 
@@ -29,11 +29,16 @@ for file in `ls *.[aA][sS][mM]`; do
 	fi
 
 	jwasm -q -bin $file &>/dev/null
-
-	`cmp -b ${file%%.*}.BIN ${file%%.*}.EXP`
+	cmp ${file%%.*}.BIN ${file%%.*}.EXP &>/dev/null
 
 	if [ $? -ne 0 ]; then
 		printf " - [${RR}ER${NC}] failed $file\n"
+		if [[ -f "${file%%.*}.BIN" && -f "${file%%.*}.EXP" ]]; then
+			printf "COMPILED (${file%%.*}.BIN)\n"
+			hexdump -C ${file%%.*}.BIN
+			printf "EXPECTED (${file%%.*}.EXP)\n"
+			hexdump -C ${file%%.*}.EXP
+		fi
 		nr_failed=$((nr_failed+1))
 	else
 		printf " - [${GG}OK${NC}] passed $file\n"
@@ -57,11 +62,16 @@ for file in `ls *.[aA][sS][nN]`; do
 	fi
 
 	jwasm -q -mz $file &>/dev/null
-
-	`cmp -b ${file%%.*}.EXE ${file%%.*}.EXP`
+	cmp ${file%%.*}.EXE ${file%%.*}.EXP &>/dev/null
 
 	if [ $? -ne 0 ]; then
 		printf " - [${RR}ER${NC}] failed $file\n"
+		if [[ -f "${file%%.*}.EXE" && -f "${file%%.*}.EXP" ]]; then
+			printf "COMPILED (${file%%.*}.EXE)\n"
+			hexdump -C ${file%%.*}.EXE
+			printf "EXPECTED (${file%%.*}.EXP)\n"
+			hexdump -C ${file%%.*}.EXP
+		fi
 		nr_failed=$((nr_failed+1))
 	else
 		printf " - [${GG}OK${NC}] passed $file\n"
