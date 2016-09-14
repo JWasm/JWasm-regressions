@@ -9,7 +9,9 @@ nr_passed=0
 nr_failed=0
 nr_broken=0
 
-jwasm | head -n3
+JWASM=${JWASM:-jwasm}
+[[ ! -x $(which ${JWASM}) ]] && echo "JWASM=${JWASM} is not executable!" && exit -1
+${JWASM} -h | head -n3
 
 # TODO: resolve all the problems
 
@@ -20,7 +22,6 @@ echo ">> Testing JWasm BIN output"
 echo ">>"
 
 for file in `ls *.[aA][sS][mM]`; do
-
 	blacklisted=`echo $blacklist | grep -w $file`
 	if [ ! -z "$blacklisted" ]; then
 		printf " - [${YY}BR${NC}] broken $file\n"
@@ -28,7 +29,7 @@ for file in `ls *.[aA][sS][mM]`; do
 		continue;
 	fi
 
-	jwasm -q -bin $file &>/dev/null
+	${JWASM} -q -bin $file &>/dev/null
 	cmp ${file%%.*}.BIN ${file%%.*}.EXP &>/dev/null
 
 	if [ $? -ne 0 ]; then
@@ -61,7 +62,7 @@ for file in `ls *.[aA][sS][nN]`; do
 		continue;
 	fi
 
-	jwasm -q -mz $file &>/dev/null
+	${JWASM} -q -mz $file &>/dev/null
 	cmp ${file%%.*}.EXE ${file%%.*}.EXP &>/dev/null
 
 	if [ $? -ne 0 ]; then
