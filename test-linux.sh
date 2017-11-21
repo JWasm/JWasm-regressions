@@ -15,7 +15,7 @@ ${JWASM} -h | head -n3
 
 # TODO: resolve all the problems
 
-blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.ASM sse2_2.asm"
+#blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.ASM sse2_2.asm"
 
 echo ">>"
 echo ">> Testing JWasm BIN output"
