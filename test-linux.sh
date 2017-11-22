@@ -13,9 +13,7 @@ JWASM=${JWASM:-jwasm}
 [[ ! -x $(which ${JWASM}) ]] && echo "JWASM=${JWASM} is not executable!" && exit -1
 ${JWASM} -h | head -n3
 
-# TODO: resolve all the problems
-
-#blacklist="EQUATE4.ASM INVOK648.ASM MOV64.ASM OPATTR2.ASM PROC642.ASM RECORD3.ASM sse2_2.asm"
+blacklist=""
 
 echo ">>"
 echo ">> Testing JWasm BIN output"
